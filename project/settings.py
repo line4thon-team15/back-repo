@@ -153,11 +153,16 @@ REST_FRAMEWORK = {
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60), # 액세스 토큰 유효기간 
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=14),    # 리프레시 토큰 유효기간
-    'ROTATE_REFRESH_TOKENS': True,                   # 리프레시 토큰 회전
-    'BLACKLIST_AFTER_ROTATION': True,  #로그아웃후에 블랙리스트 처리
-    'SIGNING_KEY': SECRET_KEY, #JWT 서명에 사용할 키
+    # 액세스 토큰 
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    # 리프레시 토큰 유효기간 
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
+    # 새 액세스 토큰 받을때 리프레시 토큰 새로 발급받지X    
+    'ROTATE_REFRESH_TOKENS': False,
+    #로그아웃후에 블랙리스트 처리                   
+    'BLACKLIST_AFTER_ROTATION': True,
+    #JWT 서명에 사용할 키
+    'SIGNING_KEY': SECRET_KEY,
 }
 
 

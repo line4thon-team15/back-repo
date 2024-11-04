@@ -97,3 +97,21 @@ class LogoutView(APIView):
         except Exception as e:
                 return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
+#access token이 만료되었을 경우 refresh token을 발급해줄 클래스 설정
+class CustomTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        serializer = TokenRefreshSerializer(data=request.data)
+
+        #refresh token의 유효성 검사
+        try:
+            serializer.is_valid(raise_exception=True)
+
+        #재로그인이 필요한 시점     
+        except Exception as e:
+            return Response({'detail': '리프레시 토큰이 유효하지 않거나 만료되었습니다.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # 유효한 refresh token으로부터 새로운 액세스 토큰 생성
+        new_access_token = serializer.validated_data['access']
+
+        
+        return Response({'access': new_access_token}, status=status.HTTP_200_OK)        
