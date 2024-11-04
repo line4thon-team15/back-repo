@@ -4,8 +4,9 @@ from .models import User
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
 from users.serializers import *
+from rest_framework.authtoken.models import Token
 import json
 
 
@@ -47,3 +48,26 @@ class SignUpView(APIView):
             serializer.save()
             return Response({"success":"회원가입에 성공하셨습니다!!!"},status=status.HTTP_201_CREATED)
         
+#로그인
+class LoginView(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        #사용자 인증
+        user = authenticate(request, username=username, password = password)
+
+        #토큰 발급
+        if user:
+            token, _ = Token.objects.get_or_create(user=user)
+
+            return Response({'token': token.key, 'username':user.username})
+        
+        #로그인 실패
+        else:
+                return Response({'error':'ⓘ 아이디와 비밀번호를 정확히 입력해주세요.'},status=401)
+
+        
+#로그아웃
+#class LogoutView(APIView):
+#    def post(self, request):
