@@ -4,9 +4,10 @@ from .models import User
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth import get_user_model, authenticate, logout
 from users.serializers import *
 from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated
 import json
 
 
@@ -49,7 +50,7 @@ class SignUpView(APIView):
             return Response({"success":"회원가입에 성공하셨습니다!!!"},status=status.HTTP_201_CREATED)
         
 #로그인
-class LoginView(APIView):
+class LoginView(APIView):    
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
@@ -69,5 +70,10 @@ class LoginView(APIView):
 
         
 #로그아웃
-#class LogoutView(APIView):
-#    def post(self, request):
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if request.user.is_authenticated:
+            logout(request)
+            return Response({'message' : '성공적으로 로그아웃 되었습니다.'}, status=status.HTTP_200_OK)

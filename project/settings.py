@@ -45,11 +45,12 @@ INSTALLED_APPS = [
     'main',
 
     'rest_framework',
-    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
 ]
 
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'users.User' 
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -143,13 +144,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ]
+}
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60), # 액세스 토큰 유효기간 
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=14),    # 리프레시 토큰 유효기간
+    'ROTATE_REFRESH_TOKENS': True,                   # 리프레시 토큰 회전
+    'BLACKLIST_AFTER_ROTATION': True,  #로그아웃후에 블랙리스트 처리
+    'SIGNING_KEY': SECRET_KEY, #JWT 서명에 사용할 키
 }
 
 
