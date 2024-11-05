@@ -45,10 +45,12 @@ INSTALLED_APPS = [
     'main',
 
     'rest_framework',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
 ]
 
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'users.User' 
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -139,6 +141,30 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    # 액세스 토큰 
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    # 리프레시 토큰 유효기간 
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
+    # 새 액세스 토큰 받을때 리프레시 토큰 새로 발급받지X    
+    'ROTATE_REFRESH_TOKENS': False,
+    #로그아웃후에 블랙리스트 처리                   
+    'BLACKLIST_AFTER_ROTATION': True,
+    #JWT 서명에 사용할 키
+    'SIGNING_KEY': SECRET_KEY,
+}
+
 
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True

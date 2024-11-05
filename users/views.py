@@ -4,8 +4,14 @@ from .models import User
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate, logout
 from users.serializers import *
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+
+
 import json
 
 
@@ -47,3 +53,65 @@ class SignUpView(APIView):
             serializer.save()
             return Response({"success":"회원가입에 성공하셨습니다!!!"},status=status.HTTP_201_CREATED)
         
+#로그인
+class LoginView(APIView):
+    permission_classes = [AllowAny]    
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        #사용자 인증
+        user = authenticate(request, username=username, password = password)
+        #토큰 발급
+        if user:
+            access_token = AccessToken.for_user(user)
+            refresh_token = RefreshToken.for_user(user)
+
+            return Response({
+                'access' : str(access_token),
+                'refresh': str(refresh_token),
+                'username': user.username
+            })
+        
+        #로그인 실패 => 유효하지 않은 사용자 정보
+        else:
+                return Response({'error':'ⓘ 아이디와 비밀번호를 정확히 입력해주세요.'},status=401)
+
+        
+#로그아웃
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        
+        refresh_token = request.data.get("refresh")
+
+        if not refresh_token:
+            return Response({'detail:':'refreshtoken이 필요합니다'},status = status.HTTP_400_BAD_REQUEST)
+        
+        try:
+             # logout 성공시 RefreshToken 객체를 blacklist에 추가
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({'success':'로그아웃 성공!!!'},status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+                return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+#access token이 만료되었을 경우 refresh token을 발급해줄 클래스 설정
+class CustomTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        serializer = TokenRefreshSerializer(data=request.data)
+
+        #refresh token의 유효성 검사
+        try:
+            serializer.is_valid(raise_exception=True)
+
+        #재로그인이 필요한 시점     
+        except Exception as e:
+            return Response({'detail': '리프레시 토큰이 유효하지 않거나 만료되었습니다.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # 유효한 refresh token으로부터 새로운 액세스 토큰 생성
+        new_access_token = serializer.validated_data['access']
+
+        
+        return Response({'access': new_access_token}, status=status.HTTP_200_OK)        
