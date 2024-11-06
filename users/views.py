@@ -10,6 +10,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
+
 
 
 import json
@@ -93,6 +95,9 @@ class LogoutView(APIView):
              # logout 성공시 RefreshToken 객체를 blacklist에 추가
             token = RefreshToken(refresh_token)
             token.blacklist()
+
+            #유효하지 않은 token outstandingtoken에서 제거
+            OutstandingToken.objects.filter(token=token).delete()
             return Response({'success':'로그아웃 성공!!!'},status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
                 return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
