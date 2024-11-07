@@ -1,20 +1,20 @@
 import json
+from django.db.models import Case, When
 from rest_framework import serializers
 from .models import Service, PresentationImage, Member
 
-
-
 class ServicePresentationSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(use_url=True)
+    service = serializers.PrimaryKeyRelatedField(queryset=Service.objects.all())
 
     class Meta:
         model = PresentationImage
-        fields = ['id','image']
+        fields = ['id','service', 'image']
 
 class ServiceMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
-        fields = ['member', 'part']
+        fields = ['id', 'member', 'part']
 
     def create(self, validated_data):
         # 새로운 Member 객체 생성
@@ -33,48 +33,48 @@ class ServiceSerializer(serializers.ModelSerializer):
         return obj.image.count()
     
     def get_members(self, obj):
-        # members.json 파일 경로
-        members_file_path = 'services/members.json'  # 실제 경로로 변경
-        
-        # JSON 파일 읽기
-        with open(members_file_path, 'r', encoding='utf-8') as file:
-            members_data = json.load(file)
+        part_order = {'PM/PD': 0, 'FE': 1, 'BE': 2}
 
-        # 팀 번호에 해당하는 멤버 리스트 가져오기
-        team_members = members_data.get(str(obj.team), [])
-
-        # 멤버 정보 직렬화 (JSON에서 직접 가져오기)
-        members_info = [{'member': member_name} for member_name in team_members]
-
-        return ServiceMemberSerializer(members_info, many=True).data
-
-    # def get_team_members(self, obj):
-    #     member = obj.team_members.members
-    #     return member
+        # members 정렬: part 우선, 그 다음 member의 ㄱㄴㄷ 순서
+        members = obj.member.all().order_by(
+            Case(
+                *(When(part=key, then=val) for key, val in part_order.items())
+            ),
+            'member'  # 한글 이름은 기본적으로 ㄱㄴㄷ 순으로 정렬
+        )
+        return ServiceMemberSerializer(members, many=True).data
 
     class Meta:
         model = Service
         fields = '__all__'
     
     def create(self, validated_data):
+        # Create the Service instance
         instance = Service.objects.create(**validated_data)
+
+        # Save presentation images
         image_set = self.context['request'].FILES
         for image_data in image_set.getlist('image'):
             PresentationImage.objects.create(service=instance, image=image_data)
+
+        # Load team members from JSON file
+        members_file_path = 'services/members.json'  # Update with the actual file path
+        with open(members_file_path, 'r', encoding='utf-8') as file:
+            members_data = json.load(file)
+
+        # Retrieve members for the given team and save to DB
+        team_members = members_data.get(str(instance.team), [])
+        for member_name in team_members:
+            Member.objects.create(service=instance, member=member_name)
+
         return instance
-    
+
     def update(self, instance, validated_data):
-        # `thumbnail_image`가 업데이트 요청에 포함되지 않으면 기존 값을 유지
-        # 무슨 코드를 쓸까... 프론트랑 얘기해봐야할 듯...
-        # if 'thumbnail_image' not in validated_data or validated_data.get('thumbnail_image') is None:
         if 'thumbnail_image' not in validated_data:
             validated_data['thumbnail_image'] = instance.thumbnail_image
 
         instance.service_name = validated_data.get('service_name', instance.service_name)
-        current_team = instance.team
-        new_team = validated_data.get('team', current_team)
-        if new_team != current_team:
-            instance.team = new_team
+        instance.team = validated_data.get('team', instance.team)
         instance.content = validated_data.get('content', instance.content)
         instance.site_url = validated_data.get('site_url', instance.site_url)
         instance.thumbnail_image = validated_data.get('thumbnail_image', instance.thumbnail_image)
@@ -85,4 +85,14 @@ class ServiceSerializer(serializers.ModelSerializer):
             instance.image.all().delete()
             for image_data in new_images:
                 PresentationImage.objects.create(service=instance, image=image_data)
+        
+        members_file_path = 'services/members.json'  # Update with the actual file path
+        with open(members_file_path, 'r', encoding='utf-8') as file:
+            members_data = json.load(file)
+
+        # Retrieve members for the given team and save to DB
+        team_members = members_data.get(str(instance.team), [])
+        instance.member.all().delete()
+        for member_name in team_members:
+            Member.objects.create(service=instance, member=member_name)
         return instance
