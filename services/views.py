@@ -2,8 +2,8 @@ from django.shortcuts import render
 from rest_framework import viewsets, mixins
 from rest_framework.permissions import AllowAny
 
-from .models import Service, PresentationImage
-from .serializers import ServiceSerializer, ServicePresentationSerializer
+from .models import Service, PresentationImage, Member
+from .serializers import ServiceSerializer, ServicePresentationSerializer, ServiceMemberSerializer
 
 # Create your views here.
 
@@ -23,3 +23,14 @@ class ServiceViewSet(viewsets.ModelViewSet):
 #         instance = self.get_object()
 #         self.perform_destroy(instance)
 #         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class MemberViewSet(viewsets.ModelViewSet):
+    queryset = Member.objects.all()
+    serializer_class = ServiceMemberSerializer
+    permission_classes = [AllowAny]
+
+class PresentationViewSet(viewsets.ModelViewSet):
+    queryset = PresentationImage.objects.all()
+    serializer_class = ServicePresentationSerializer
+    permission_classes = [AllowAny]
+    
