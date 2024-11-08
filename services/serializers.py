@@ -6,7 +6,7 @@ from .models import Service, PresentationImage, Member
 class ServicePresentationSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(use_url=True)
     service = serializers.PrimaryKeyRelatedField(queryset=Service.objects.all())
-
+    
     class Meta:
         model = PresentationImage
         fields = ['id','service', 'image']
@@ -15,6 +15,7 @@ class ServiceMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
         fields = ['id', 'member', 'part']
+        read_only_fields = ['id', 'member']
 
     def create(self, validated_data):
         # 새로운 Member 객체 생성
@@ -82,17 +83,33 @@ class ServiceSerializer(serializers.ModelSerializer):
 
         new_images = self.context['request'].FILES.getlist('image')
         if new_images:
-            instance.image.all().delete()
-            for image_data in new_images:
-                PresentationImage.objects.create(service=instance, image=image_data)
-        
-        members_file_path = 'services/members.json'  # Update with the actual file path
-        with open(members_file_path, 'r', encoding='utf-8') as file:
-            members_data = json.load(file)
+            # 요청에 포함되지 않은 이미지를 삭제하고, 새 이미지를 추가
+            existing_image_ids = [img.id for img in instance.image.all()]
+            request_image_ids = [img.id for img in new_images if img.id]
+            
+            # 새로운 이미지 목록에 포함되지 않은 기존 이미지 삭제
+            for img_id in existing_image_ids:
+                if img_id not in request_image_ids:
+                    instance.image.filter(id=img_id).delete()
 
-        # Retrieve members for the given team and save to DB
-        team_members = members_data.get(str(instance.team), [])
-        instance.member.all().delete()
-        for member_name in team_members:
-            Member.objects.create(service=instance, member=member_name)
+            # 새로운 이미지 추가
+            for image_data in new_images:
+                if not image_data.id:  # 새로운 이미지인 경우
+                    PresentationImage.objects.create(service=instance, image=image_data)
+
+        # 멤버 데이터 업데이트 또는 추가
+        members_data = self.context['request'].data.get('members', [])
+        for member_data in members_data:
+            member_id = member_data.get('id')
+            part = member_data.get('part')
+            
+            if member_id:
+                # 기존 멤버 업데이트
+                member = instance.member.filter(id=member_id).first()
+                if member:
+                    member.part = part
+                    member.save()
+            else:
+                # id가 없는 경우 새로운 멤버 생성
+                Member.objects.create(service=instance, member=member_data['member'], part=part)
         return instance
