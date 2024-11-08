@@ -56,6 +56,43 @@ class MainScoreView(APIView):
 
         return Response(data)
 
+class MainTagView(APIView):
+    def get(self, request, *args, **kwargs):
+        services = Service.objects.all()
+        service_tag_count = []
+
+        # 서비스별 리뷰 태그 개수 계산
+        for service in services:
+            tag_count = 0
+            # 전체 리뷰 태그 계수 계산
+            for review in service.reviews.all():
+                tag_count += len(review.tags)
+
+            service_tag_count.append((service, tag_count))
+
+        # 태그 개수 기준 정렬
+        sorted_services = sorted(service_tag_count, key=lambda x: x[1], reverse=True)[:5]
+
+        data = []
+        for service, tag_count in sorted_services:
+            service_data = {
+                'id': service.id,
+                'service_name': service.service_name,
+                'thumbnail_image': service.thumbnail_image.url if service.thumbnail_image else None,
+                'intro': service.content,
+                'team_num': service.team,
+                'team_name': f"Team {service.team}",
+                'tag_count': tag_count,
+                'site_url': service.site_url,
+            }
+            data.append(service_data)
+
+        # 1등 서비스에는 winner_score 추가
+        if data:
+            data[0]['winner_score'] = 1
+
+        return Response(data)
+
 class MainRandomView(APIView):
     def get(self, request, *args, **kwargs):
         services = Service.objects.all()
