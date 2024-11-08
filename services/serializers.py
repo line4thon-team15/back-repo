@@ -96,3 +96,9 @@ class ServiceSerializer(serializers.ModelSerializer):
         for member_name in team_members:
             Member.objects.create(service=instance, member=member_name)
         return instance
+    
+
+'''class ServiceListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Service
+        fields = ['id', 'service_name', 'team', 'thumbnail_imgae']'''
