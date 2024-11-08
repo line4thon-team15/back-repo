@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'users',
     'main',
     'services',
+    'reviews',
 
     'rest_framework',
     'rest_framework_simplejwt',
