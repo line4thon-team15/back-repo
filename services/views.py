@@ -35,7 +35,7 @@ class PresentationViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
 
 #전체 서비스 목록 불러오기
-#class ServiceListView(generics.ListAPIView):
-#    queryset = Service.objects.all()
-#    serializer_class = ServiceListSerializer
-#    permission_classes=[AllowAny]
+class ServiceListView(generics.ListAPIView):
+    queryset = Service.objects.all()
+    serializer_class = ServiceListSerializer
+    permission_classes=[AllowAny]

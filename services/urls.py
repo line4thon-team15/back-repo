@@ -20,5 +20,5 @@ urlpatterns = [
     path("", include(default_router.urls)),
     path("", include(member_router.urls)),
     path("", include(presentation_router.urls)),
-    #path("", ServiceListView.as_view(), name='service-list'),
+    path("", ServiceListView.as_view(), name='service-list'),
 ] 

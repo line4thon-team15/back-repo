@@ -98,7 +98,7 @@ class ServiceSerializer(serializers.ModelSerializer):
         return instance
     
 
-'''class ServiceListSerializer(serializers.ModelSerializer):
+class ServiceListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
-        fields = ['id', 'service_name', 'team', 'thumbnail_imgae']'''
+        fields = ['id', 'service_name', 'team', 'thumbnail_image']
