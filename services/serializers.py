@@ -1,7 +1,9 @@
 import json
+from django.db.models import Avg
 from django.db.models import Case, When
 from rest_framework import serializers
 from .models import Service, PresentationImage, Member
+from reviews.serializers import ReviewSerializer
 
 class ServicePresentationSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(use_url=True)
@@ -25,6 +27,9 @@ class ServiceSerializer(serializers.ModelSerializer):
     presentations = serializers.SerializerMethodField()
     presentation_cnt = serializers.SerializerMethodField()
     members = serializers.SerializerMethodField()
+    review = serializers.SerializerMethodField()
+    review_cnt = serializers.SerializerMethodField()
+    score_average = serializers.SerializerMethodField()
 
     def get_presentations(self, obj):
         image = obj.image.all()
@@ -45,6 +50,17 @@ class ServiceSerializer(serializers.ModelSerializer):
         )
         return ServiceMemberSerializer(members, many=True).data
 
+    def get_review(self, instance):
+        serializer = ReviewSerializer(instance.reviews, many=True)
+        return serializer.data
+    
+    def get_review_cnt(self, obj):
+        return obj.reviews.count()
+    
+    def get_score_average(self, obj):
+        score_avg = obj.reviews.aggregate(Avg('score')).get('score__avg')
+        return round(score_avg, 2) if score_avg is not None else 0.0
+    
     class Meta:
         model = Service
         fields = '__all__'
