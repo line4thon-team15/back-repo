@@ -1,9 +1,9 @@
 from django.shortcuts import render
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, generics
 from rest_framework.permissions import AllowAny
 
 from .models import Service, PresentationImage, Member
-from .serializers import ServiceSerializer, ServicePresentationSerializer, ServiceMemberSerializer
+from .serializers import ServiceSerializer, ServicePresentationSerializer, ServiceMemberSerializer, ServiceListSerializer
 
 # Create your views here.
 
@@ -33,3 +33,9 @@ class PresentationViewSet(viewsets.ModelViewSet):
     queryset = PresentationImage.objects.all()
     serializer_class = ServicePresentationSerializer
     permission_classes = [AllowAny]
+
+#전체 서비스 목록 불러오기
+class ServiceListView(generics.ListAPIView):
+    queryset = Service.objects.all()
+    serializer_class = ServiceListSerializer
+    permission_classes=[AllowAny]

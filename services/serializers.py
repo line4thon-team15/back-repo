@@ -129,3 +129,9 @@ class ServiceSerializer(serializers.ModelSerializer):
                 # id가 없는 경우 새로운 멤버 생성
                 Member.objects.create(service=instance, member=member_data['member'], part=part)
         return instance
+    
+
+class ServiceListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Service
+        fields = ['id', 'service_name', 'team', 'thumbnail_image']
