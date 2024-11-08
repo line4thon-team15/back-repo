@@ -25,6 +25,8 @@ def load_participants():
         return json.load(f)
 
 class SignUpView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
@@ -45,7 +47,9 @@ class SignUpView(APIView):
         #유효한 해커톤 참가자 정보인지 검사
         participants = load_participants()
         if is_participant:
-            if not any(p['name'] == name and p['univ'] == univ for p in participants[team]):
+            team_data = participants.get(str(team))
+
+            if not any(p['name'] == name and p['univ'] == univ for p in team_data):
                 return Response({"error": "참가자 정보가 유효하지 않습니다."}, status=status.HTTP_400_BAD_REQUEST)
         
 
