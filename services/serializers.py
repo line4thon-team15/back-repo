@@ -99,19 +99,11 @@ class ServiceSerializer(serializers.ModelSerializer):
 
         new_images = self.context['request'].FILES.getlist('image')
         if new_images:
-            # 요청에 포함되지 않은 이미지를 삭제하고, 새 이미지를 추가
-            existing_image_ids = [img.id for img in instance.image.all()]
-            request_image_ids = [img.id for img in new_images if img.id]
-            
-            # 새로운 이미지 목록에 포함되지 않은 기존 이미지 삭제
-            for img_id in existing_image_ids:
-                if img_id not in request_image_ids:
-                    instance.image.filter(id=img_id).delete()
-
-            # 새로운 이미지 추가
+            instance.image.all().delete()
+    
+            # 새 이미지 추가
             for image_data in new_images:
-                if not image_data.id:  # 새로운 이미지인 경우
-                    PresentationImage.objects.create(service=instance, image=image_data)
+                PresentationImage.objects.create(service=instance, image=image_data)
 
         # 멤버 데이터 업데이트 또는 추가
         members_data = self.context['request'].data.get('members', [])

@@ -11,7 +11,7 @@ class ServiceViewSet(viewsets.ModelViewSet):
     queryset = Service.objects.all().order_by('team')
     serializer_class = ServiceSerializer
     # 나중에 권한 변경
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
 
 # 나중에 개별 이미지 수정 확인
 # class PresentationImageViewSet(viewsets.ModelViewSet):

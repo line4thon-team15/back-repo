@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from .models import User
+from services.serializers import ServiceSerializer
+from reviews.models import Review
 
 User = get_user_model()
 
@@ -20,3 +22,23 @@ class UserSerializer(ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+class ProfileSerializer(serializers.ModelSerializer):
+    service = serializers.SerializerMethodField()
+    service_cnt = serializers.SerializerMethodField()
+
+    def get_service(self, obj):
+        reviews = Review.objects.filter(writer=obj)
+        services = [review.service for review in reviews if review.service]
+
+        return ServiceSerializer(services, many=True).data
+    
+    def get_service_cnt(self, obj):
+        return Review.objects.filter(writer=obj, service__isnull=False).count()
+
+    class Meta:
+        model = User
+        fields = ['name', 'is_participant', 'univ', 'team', 'service', 'profile_pic', 'service_cnt']
+        read_only_fields = ['name', 'is_participatn', 'univ', 'team', 'service', 'service_cnt']
+    
+    
