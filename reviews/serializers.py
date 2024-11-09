@@ -2,6 +2,11 @@ from rest_framework import serializers
 from .models import Review, ReviewLike
 
 class ReviewSerializer(serializers.ModelSerializer):
+    tags = serializers.ListField(
+        child=serializers.CharField(max_length=20),
+        allow_empty=False,  # 빈 리스트 허용 여부
+        required=True       # 필수 필드 여부
+    )
     is_liked = serializers.SerializerMethodField()
     is_writer = serializers.SerializerMethodField()
     ui_tags = serializers.SerializerMethodField()
