@@ -9,12 +9,20 @@ class ReviewSerializer(serializers.ModelSerializer):
     is_writer = serializers.SerializerMethodField()
     ui_tags = serializers.SerializerMethodField()
     completion_tags = serializers.SerializerMethodField()
+    team = serializers.SerializerMethodField()
+    writer_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Review
         fields = '__all__'
-        read_only_fields = ('writer', 'likes_count', 'created_at', 'updated_at', 'is_liked', 'is_writer', 'team', 'service')
+        read_only_fields = ('writer', 'likes_count', 'created_at', 'updated_at', 'is_liked', 'is_writer', 'service')
     
+    def get_team(self, obj):
+        return obj.writer.team
+    
+    def get_writer_name(self, obj):
+        return obj.writer.name
+
     def create(self, validated_data):
         tags = validated_data.pop('tags', [])
         score = validated_data.pop('score')
@@ -29,9 +37,8 @@ class ReviewSerializer(serializers.ModelSerializer):
         writer = self.context['request'].user
         validated_data['writer'] = writer
         validated_data['service'] = service
-        validated_data['team'] = service.team
-            
-        if hasattr(writer, 'team') and writer.team == service.team:
+
+        if writer.team == service.team:
             raise ValidationError("내 팀의 서비스에는 리뷰를 작성할 수 없습니다.")
         
         # 리뷰 생성
@@ -39,12 +46,13 @@ class ReviewSerializer(serializers.ModelSerializer):
         return review
     
     def update(self, instance, validated_data):
-        tags = validated_data.pop('tags', [])
-        # 태그 유효성 검사 
-        review = super().update(instance, validated_data)
-        review.tags = tags
-        review.save()
-        return review
+        # 수정 가능한 필드만 업데이트
+        instance.score = validated_data.get('score', instance.score)
+        instance.review = validated_data.get('review', instance.review)
+        instance.tags = validated_data.get('tags', instance.tags)
+        
+        instance.save()
+        return instance
 
     def get_is_liked(self, obj): # 좋아요 눌렀는지
         request = self.context.get('request')
