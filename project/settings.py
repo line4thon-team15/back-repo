@@ -159,7 +159,7 @@ from datetime import timedelta
 
 SIMPLE_JWT = {
     # 액세스 토큰 
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=600),
     # 리프레시 토큰 유효기간 
     'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
     # 새 액세스 토큰 받을때 리프레시 토큰 발급   
