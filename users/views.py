@@ -11,8 +11,8 @@ from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
-
 from rest_framework import viewsets
+
 
 
 import json
@@ -102,7 +102,7 @@ class LogoutView(APIView):
             token.blacklist()
 
             #유효하지 않은 token outstandingtoken에서 제거
-            OutstandingToken.objects.filter(token=token).delete()
+            #OutstandingToken.objects.filter(token=token).delete()
             return Response({'success':'로그아웃 성공!!!'},status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
                 return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -122,10 +122,10 @@ class CustomTokenRefreshView(TokenRefreshView):
 
         # 유효한 refresh token으로부터 새로운 액세스 토큰 생성
         new_access_token = serializer.validated_data['access']
-
+        new_refresh_token = serializer.validated_data['refresh']
         
-        return Response({'access': new_access_token}, status=status.HTTP_200_OK)        
-
+        return Response({'access': new_access_token,'refresh':new_refresh_token}, status=status.HTTP_200_OK)
+    
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
