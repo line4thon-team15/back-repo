@@ -33,7 +33,6 @@ class Review(models.Model):
                                 related_name='reviews')
     service = models.ForeignKey('services.Service', on_delete=models.CASCADE,
                                 null=True, blank=True, related_name='reviews')
-    team = models.IntegerField()
     score = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(5.0)
         ])
     tags = models.JSONField(default=list)
@@ -71,7 +70,6 @@ class Review(models.Model):
                 raise ValidationError({
                     'tags': f'"{tag}"는 유효하지 않은 태그입니다.'
                 })
-        
         
 
     def save(self, *args, **kwargs):

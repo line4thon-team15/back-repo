@@ -3,15 +3,26 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Review, ReviewLike
 from .serializers import ReviewSerializer, ReviewLikeSerializer
-from django.db.models import F
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import ValidationError
 
 class ReviewsAPIView(APIView):
-    def get(self, request, service_id=None):
+    def get(self, request, service_id=None, review_id=None):
+        if review_id:
+            try:
+                review = Review.objects.get(id=review_id, service_id=service_id)
+                serializer = ReviewSerializer(review)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except Review.DoesNotExist:
+                raise ValidationError("해당 리뷰를 찾을 수 없습니다.")
+
         if service_id:
             reviews = Review.objects.filter(service_id=service_id)
         else:
             reviews = Review.objects.all()
         serializer = ReviewSerializer(reviews, many=True)
+        
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, service_id):
@@ -25,20 +36,49 @@ class ReviewsAPIView(APIView):
             serializer.save(writer=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def put(self, request, service_id, review_id=None):
+        try:
+            review = Review.objects.get(id=review_id, service_id=service_id)
+        except Review.DoesNotExist:
+            raise ValidationError("해당 리뷰를 찾을 수 없습니다.")
 
-class ReviewAPIView(APIView):
-    def get(self, request, pk):
-        review = Review.objects.get(id=pk)
-        serializer = ReviewSerializer(review)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if review.writer != request.user:
+            return Response(
+                {"error": "리뷰 작성자만 수정할 수 있습니다."}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
 
-    def put(self, request, pk):
-        review = Review.objects.get(id=pk)
-        serializer = ReviewSerializer(review, data=request.data, context={'request': request})
+        serializer = ReviewSerializer(
+            review,
+            data=request.data,
+            context={
+                'request': request,
+                'service_id': service_id
+            },
+            partial=True
+        )
+        
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, service_id, review_id=None):
+        return self.put(request, service_id, review_id)
+
+    def delete(self, request, pk):
+        try:
+            review = Review.objects.get(pk=pk)
+        except Review.DoesNotExist:
+            return Response({"error": "리뷰가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+        if review.writer != request.user: 
+            raise PermissionDenied("리뷰 작성자만 삭제할 수 있습니다.")
+
+        review.delete()
+        return Response({"message": "리뷰가 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
+
 
 class ReviewLikeAPIView(APIView):
     def post(self, request, pk):
@@ -46,12 +86,17 @@ class ReviewLikeAPIView(APIView):
         user = request.user
         like, created = ReviewLike.objects.get_or_create(review=review, user=user)
 
+        if user.id == review.writer.id:
+            raise ValidationError("리뷰 작성자는 자신의 리뷰에 좋아요를 할 수 없습니다.")
+
+        like, created = ReviewLike.objects.get_or_create(review=review, user=user)
+
         if not created:
             like.delete()
-            review.likes_count = F('likes_count') - 1
+            review.likes_count -= 1
             liked = False
         else:
-            review.likes_count = F('likes_count') + 1
+            review.likes_count += 1
             liked = True
 
         review.save()
