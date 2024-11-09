@@ -29,6 +29,8 @@ class MainRouteView(APIView):
         return Response(data)
 
 class MainScoreView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, *args, **kwargs):
         services = Service.objects.all()
         serializer = ServiceSerializer(services, many=True, context={'request': request})
@@ -57,6 +59,8 @@ class MainScoreView(APIView):
         return Response(data)
 
 class MainTagView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, *args, **kwargs):
         services = Service.objects.all()
         service_tag_count = []
@@ -94,6 +98,8 @@ class MainTagView(APIView):
         return Response(data)
 
 class MainRandomView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, *args, **kwargs):
         services = Service.objects.all()
 
@@ -115,8 +121,3 @@ class MainRandomView(APIView):
             data.append(service_data)
 
         return Response(data)
-
-#    def get_team_name(self, team_num):
-#        with open('main/team_names.json','r', encoding='utf-8') as file:
-#            team_names = json.load(file)
-#        return team_names.get(str(team_num), "해당 없음")
