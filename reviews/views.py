@@ -37,9 +37,9 @@ class ReviewsAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    def put(self, request, service_id, review_id=None):
+    def put(self, request, pk):
         try:
-            review = Review.objects.get(id=review_id, service_id=service_id)
+            review = Review.objects.get(id=pk)
         except Review.DoesNotExist:
             raise ValidationError("해당 리뷰를 찾을 수 없습니다.")
 
@@ -53,8 +53,7 @@ class ReviewsAPIView(APIView):
             review,
             data=request.data,
             context={
-                'request': request,
-                'service_id': service_id
+                'request': request
             },
             partial=True
         )
@@ -64,8 +63,8 @@ class ReviewsAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def patch(self, request, service_id, review_id=None):
-        return self.put(request, service_id, review_id)
+    def patch(self, request, pk):
+        return self.put(request, pk)
 
     def delete(self, request, pk):
         try:
