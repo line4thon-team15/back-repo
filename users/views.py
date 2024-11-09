@@ -11,6 +11,7 @@ from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
+from rest_framework import viewsets
 
 
 
@@ -123,4 +124,23 @@ class CustomTokenRefreshView(TokenRefreshView):
         new_access_token = serializer.validated_data['access']
         new_refresh_token = serializer.validated_data['refresh']
         
-        return Response({'access': new_access_token,'refresh':new_refresh_token}, status=status.HTTP_200_OK)        
+        return Response({'access': new_access_token,'refresh':new_refresh_token}, status=status.HTTP_200_OK)
+    
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user  # 현재 요청한 사용자
+        serializer = ProfileSerializer(user, context={'request': request})
+        return Response(serializer.data)
+    
+    def patch(self, request, *args, **kwargs):
+        user = request.user  # 현재 요청한 사용자
+
+        # 프로필 사진만 수정하기 위해 ProfileSerializer를 사용
+        serializer = ProfileSerializer(user, data=request.data, partial=True, context={'request': request})
+
+        if serializer.is_valid():
+            serializer.save()  # 저장
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

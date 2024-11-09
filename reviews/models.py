@@ -77,16 +77,18 @@ class Review(models.Model):
     def save(self, *args, **kwargs):
         if not self.service:
             self.service = get_service_for_team(self.team)
+        else:
+            self.team = self.service.team
         self.full_clean()
         super().save(*args, **kwargs)
 
     @property
-    def ui_convenience_tags(self): # UI 태그 반환
+    def ui_tags(self): # UI 태그 반환
         valid_tags = {tag[0] for tag in self.UI_TAGS}
         return [tag for tag in self.tags if tag in valid_tags]
 
     @property
-    def originality_completion_tags(self): # 완성도 태그 반환
+    def completion_tags(self): # 완성도 태그 반환
         valid_tags = {tag[0] for tag in self.COMPLETION_TAGS}
         return [tag for tag in self.tags if tag in valid_tags]
 
