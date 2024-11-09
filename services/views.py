@@ -1,16 +1,22 @@
 from django.shortcuts import render
 from rest_framework import viewsets, mixins, generics
 from rest_framework.permissions import AllowAny
+from .permissions import IsOwnerOrReadOnly
 
 from .models import Service, PresentationImage, Member
 from .serializers import ServiceSerializer, ServicePresentationSerializer, ServiceMemberSerializer, ServiceListSerializer
 
+from rest_framework.response import Response
 # Create your views here.
 
 class ServiceViewSet(viewsets.ModelViewSet):
     queryset = Service.objects.all().order_by('team')
     serializer_class = ServiceSerializer
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
+    def get_permissions(self):
+        if self.action in ["update", "delete", "partial_update"]:
+            return [IsOwnerOrReadOnly()]
+        return [AllowAny()]
 
 # 나중에 개별 이미지 수정 확인
 # class PresentationImageViewSet(viewsets.ModelViewSet):

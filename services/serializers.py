@@ -71,7 +71,6 @@ class ServiceSerializer(serializers.ModelSerializer):
             return member.team == team
         else:
             return False
-    
     class Meta:
         model = Service
         fields = '__all__'
@@ -106,6 +105,7 @@ class ServiceSerializer(serializers.ModelSerializer):
         instance.content = validated_data.get('content', instance.content)
         instance.site_url = validated_data.get('site_url', instance.site_url)
         instance.thumbnail_image = validated_data.get('thumbnail_image', instance.thumbnail_image)
+        instance.intro = validated_data.get('intro', instance.intro)
         instance.save()
 
         new_images = self.context['request'].FILES.getlist('image')
