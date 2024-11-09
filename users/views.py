@@ -97,7 +97,7 @@ class LogoutView(APIView):
             return Response({'detail:':'refreshtoken이 필요합니다'},status = status.HTTP_400_BAD_REQUEST)
         
         try:
-             # logout 성공시 RefreshToken 객체를 blacklist에 추가
+            # logout 성공시 RefreshToken 객체를 blacklist에 추가
             token = RefreshToken(refresh_token)
             token.blacklist()
 
