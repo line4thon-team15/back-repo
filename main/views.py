@@ -21,7 +21,6 @@ class MainRouteView(APIView):
                 'thumbnail_image': service.thumbnail_image.url if service.thumbnail_image else None,
                 'intro': service.content,
                 'team_num': service.team,
-                'team_name': f"Team {service.team}",
                 'site_url': service.site_url,
             }
             data.append(service_data)
@@ -46,7 +45,6 @@ class MainScoreView(APIView):
                 'thumbnail_image': service['thumbnail_image'] if service['thumbnail_image'] else None,
                 'intro': service['content'],
                 'team_num': service['team'],
-                'team_name': f"Team {service['team']}",
                 'score_average': service['score_average'],
                 'site_url': service['site_url'],
             }
@@ -85,7 +83,6 @@ class MainTagView(APIView):
                 'thumbnail_image': service.thumbnail_image.url if service.thumbnail_image else None,
                 'intro': service.content,
                 'team_num': service.team,
-                'team_name': f"Team {service.team}",
                 'tag_count': tag_count,
                 'site_url': service.site_url,
             }
@@ -115,7 +112,6 @@ class MainRandomView(APIView):
                 'thumbnail_image': service.thumbnail_image.url if service.thumbnail_image else None,
                 'intro': service.content,
                 'team_num': service.team,
-                'team_name': f"Team {service.team}",
                 'site_url': service.site_url,
             }
             data.append(service_data)
