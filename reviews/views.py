@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Review, ReviewLike
 from .serializers import ReviewSerializer, ReviewLikeSerializer
+from django.db.models import F
 
 class ReviewsAPIView(APIView):
     def get(self, request):

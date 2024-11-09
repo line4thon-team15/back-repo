@@ -162,8 +162,8 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     # 리프레시 토큰 유효기간 
     'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
-    # 새 액세스 토큰 받을때 리프레시 토큰 새로 발급받지X    
-    'ROTATE_REFRESH_TOKENS': False,
+    # 새 액세스 토큰 받을때 리프레시 토큰 발급   
+    'ROTATE_REFRESH_TOKENS': True,
     #로그아웃후에 블랙리스트 처리                   
     'BLACKLIST_AFTER_ROTATION': True,
     #JWT 서명에 사용할 키
