@@ -30,6 +30,7 @@ class ServiceSerializer(serializers.ModelSerializer):
     review = serializers.SerializerMethodField()
     review_cnt = serializers.SerializerMethodField()
     score_average = serializers.SerializerMethodField()
+    service_member = serializers.SerializerMethodField()
 
     def get_presentations(self, obj):
         image = obj.image.all()
@@ -61,6 +62,10 @@ class ServiceSerializer(serializers.ModelSerializer):
         score_avg = obj.reviews.aggregate(Avg('score')).get('score__avg')
         return round(score_avg, 2) if score_avg is not None else 0.0
     
+    def get_service_member(self, obj):
+        team = obj.team
+        member = self.context['request'].user
+        return member.team == team
     class Meta:
         model = Service
         fields = '__all__'
