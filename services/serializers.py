@@ -51,8 +51,9 @@ class ServiceSerializer(serializers.ModelSerializer):
         )
         return ServiceMemberSerializer(members, many=True).data
 
-    def get_review(self, instance):
-        serializer = ReviewSerializer(instance.reviews, many=True)
+    def get_review(self, obj):
+        request = self.context['request']
+        serializer = ReviewSerializer(obj.reviews, many=True, context={'request': request})
         return serializer.data
     
     def get_review_cnt(self, obj):
