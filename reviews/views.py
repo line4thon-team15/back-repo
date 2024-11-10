@@ -34,7 +34,7 @@ class ReviewsAPIView(APIView):
         if review_id:
             try:
                 review = Review.objects.get(id=review_id, service_id=service_id)
-                serializer = ReviewSerializer(review)
+                serializer = ReviewSerializer(instance=review, context={'request': request})
                 return Response(serializer.data, status=status.HTTP_200_OK)
             except Review.DoesNotExist:
                 raise ValidationError("해당 리뷰를 찾을 수 없습니다.")
@@ -44,7 +44,7 @@ class ReviewsAPIView(APIView):
         else:
             reviews = Review.objects.all()
 
-        serializer = ReviewSerializer(reviews, many=True)
+        serializer = ReviewSerializer(reviews, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, service_id):
@@ -102,6 +102,8 @@ class ReviewLikeAPIView(APIView):
     def post(self, request, pk):
         try:
             review = Review.objects.get(id=pk)
+            self.check_object_permissions(request, review)
+
             user = request.user
             like, created = ReviewLike.objects.get_or_create(review=review, user=user)
 
