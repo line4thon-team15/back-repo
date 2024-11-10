@@ -35,7 +35,6 @@ class ReviewsAPIView(APIView):
             try:
                 review = Review.objects.get(id=review_id, service_id=service_id)
                 serializer = ReviewSerializer(instance=review, context={'request': request})
-                # serializer = ReviewSerializer(review)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             except Review.DoesNotExist:
                 raise ValidationError("해당 리뷰를 찾을 수 없습니다.")
