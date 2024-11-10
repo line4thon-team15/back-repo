@@ -25,6 +25,8 @@ class UserSerializer(ModelSerializer):
         return user
 
 class ServiceSummarySerializer(serializers.ModelSerializer):
+    thumbnail_image = serializers.ImageField(use_url=True)
+
     class Meta:
         model = Service
         fields = ['id', 'service_name', 'thumbnail_image']

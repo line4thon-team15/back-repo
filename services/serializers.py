@@ -65,7 +65,6 @@ class ServiceSerializer(serializers.ModelSerializer):
     def get_service_member(self, obj):
         team = obj.team
         member = self.context['request'].user
-
         # Check if the user is authenticated before accessing `team`
         if member.is_authenticated:
             return member.team == team

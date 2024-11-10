@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import get_user_model
 from .models import User
 from rest_framework.response import Response
@@ -144,3 +144,16 @@ class ProfileView(APIView):
             serializer.save()  # 저장
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def delete(self, request):
+        user = request.user
+        self.check_object_permissions(request, user)
+        
+        # Delete the profile image
+        user.profile_pic.delete(save=False)  # Deletes the image file from storage
+        user.profile_pic = None  # Sets the field to null in the database
+        user.save()
+        
+        return Response(
+            {"message": "프로필 이미지가 삭제되었습니다."},
+            status=status.HTTP_204_NO_CONTENT
+        )
