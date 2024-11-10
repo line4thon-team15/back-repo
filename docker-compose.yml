@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    container_name: 4line
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env  # .env 파일을 컨테이너에 주입
+    environment:
+      - DJANGO_SETTINGS_MODULE=project.settings
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    command: python manage.py runserver 0.0.0.0:8000
