@@ -18,10 +18,9 @@ class MainRouteView(APIView):
             service_data = {
                 'id': service.id,
                 'service_name': service.service_name,
-                'thumbnail_image': service.thumbnail_image.url if service.thumbnail_image else None,
+                'thumbnail_image': request.build_absolute_uri(service.thumbnail_image.url) if service.thumbnail_image else None,
                 'intro': service.content,
                 'team_num': service.team,
-                'site_url': service.site_url,
             }
             data.append(service_data)
 
@@ -39,14 +38,16 @@ class MainScoreView(APIView):
         # 필요한 필드만 추출
         data = []
         for service in score_top5_services:
+            thumbnail_url = service['thumbnail_image']
+            absolute_thumbnail_url = request.build_absolute_uri(thumbnail_url) if thumbnail_url else None
+
             service_data = {
                 'id': service['id'],
                 'service_name': service['service_name'],
-                'thumbnail_image': service['thumbnail_image'] if service['thumbnail_image'] else None,
+                'thumbnail_image': absolute_thumbnail_url,
                 'intro': service['content'],
                 'team_num': service['team'],
                 'score_average': service['score_average'],
-                'site_url': service['site_url'],
             }
             data.append(service_data)
 
@@ -80,11 +81,10 @@ class MainTagView(APIView):
             service_data = {
                 'id': service.id,
                 'service_name': service.service_name,
-                'thumbnail_image': service.thumbnail_image.url if service.thumbnail_image else None,
+                'thumbnail_image': request.build_absolute_uri(service.thumbnail_image.url) if service.thumbnail_image else None,
                 'intro': service.content,
                 'team_num': service.team,
                 'tag_count': tag_count,
-                'site_url': service.site_url,
             }
             data.append(service_data)
 
@@ -109,10 +109,9 @@ class MainRandomView(APIView):
             service_data = {
                 'id': service.id,
                 'service_name': service.service_name,
-                'thumbnail_image': service.thumbnail_image.url if service.thumbnail_image else None,
+                'thumbnail_image': request.build_absolute_uri(service.thumbnail_image.url) if service.thumbnail_image else None,
                 'intro': service.content,
                 'team_num': service.team,
-                'site_url': service.site_url,
             }
             data.append(service_data)
 
