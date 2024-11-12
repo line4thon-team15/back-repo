@@ -43,7 +43,7 @@ class ServiceSerializer(serializers.ModelSerializer):
         part_order = {'PM/PD': 0, 'FE': 1, 'BE': 2}
 
         # members 정렬: part 우선, 그 다음 member의 ㄱㄴㄷ 순서
-        members = obj.member.all().order_by(
+        members = obj.member.filter(part__isnull=False).order_by(
             Case(
                 *(When(part=key, then=val) for key, val in part_order.items())
             ),
