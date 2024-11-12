@@ -184,4 +184,9 @@ CORS_ALLOWED_ORIGINS = [
     # 프론트엔드 도메인 또는 IP 주소
     'http://프론트주소',
     'http://프론트주소:포트번호',
+
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://4thline.kr',  # 우리 도메인 추가
 ]

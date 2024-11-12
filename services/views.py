@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import viewsets, mixins, generics
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser
 from .permissions import IsOwnerOrReadOnly
 
 from .models import Service, PresentationImage, Member
@@ -16,7 +16,10 @@ class ServiceViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ["update", "delete", "partial_update"]:
             return [IsOwnerOrReadOnly()]
-        return [AllowAny()]
+        elif self.action == "destroy":
+            return [IsAdminUser()]
+        else:
+            return [AllowAny()]
 
 # 나중에 개별 이미지 수정 확인
 # class PresentationImageViewSet(viewsets.ModelViewSet):
