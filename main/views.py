@@ -18,7 +18,7 @@ class MainRouteView(APIView):
                 'id': service.id,
                 'service_name': service.service_name,
                 'thumbnail_image': request.build_absolute_uri(service.thumbnail_image.url) if service.thumbnail_image else None,
-                'intro': service.content,
+                'intro': service.intro,
                 'team_num': service.team,
             }
             data.append(service_data)
