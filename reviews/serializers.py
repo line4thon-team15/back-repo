@@ -3,6 +3,8 @@ from .models import Review, ReviewLike
 from services.models import Service
 from django.contrib.auth.models import AnonymousUser
 from rest_framework.exceptions import ValidationError
+
+from services.serializers import *
         
 class ReviewSerializer(serializers.ModelSerializer):
     tags = serializers.ListField(
@@ -16,6 +18,8 @@ class ReviewSerializer(serializers.ModelSerializer):
     completion_tags = serializers.SerializerMethodField()
     team = serializers.SerializerMethodField()
     writer_name = serializers.SerializerMethodField()
+    univ = serializers.SerializerMethodField()
+    writer_service = serializers.SerializerMethodField()
 
     class Meta:
         model = Review
@@ -79,7 +83,13 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def get_completion_tags(self, obj):
         return obj.completion_tags
-
+    
+    def get_univ(self, obj):
+        return obj.writer.univ
+    
+    def get_writer_service(self, obj):
+        service = Service.objects.filter(team=obj.writer.team).first()
+        return service.service_name if service else None
 class ReviewLikeSerializer(serializers.Serializer):
     liked = serializers.BooleanField()
     likes_count = serializers.IntegerField()
