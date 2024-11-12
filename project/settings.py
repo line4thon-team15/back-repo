@@ -182,11 +182,11 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:5173',
 
     # 프론트엔드 도메인 또는 IP 주소
-    'http://프론트주소',
+    'https://line4-thon.vercel.app',
     'http://프론트주소:포트번호',
-
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://4thline.kr',  # 우리 도메인 추가
+    'https://line4-thon.vercel.app'
 ]
