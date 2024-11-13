@@ -43,7 +43,7 @@ class MainScoreView(APIView):
                 'id': service['id'],
                 'service_name': service['service_name'],
                 'thumbnail_image': absolute_thumbnail_url,
-                'intro': service['content'],
+                'intro': service['intro'],
                 'team_num': service['team'],
                 'score_average': service['score_average'],
             }
@@ -80,7 +80,7 @@ class MainTagView(APIView):
                 'id': service.id,
                 'service_name': service.service_name,
                 'thumbnail_image': request.build_absolute_uri(service.thumbnail_image.url) if service.thumbnail_image else None,
-                'intro': service.content,
+                'intro': service.intro,
                 'team_num': service.team,
                 'tag_count': tag_count,
             }
@@ -105,7 +105,7 @@ class MainRecentView(APIView):
                 'id': service.id,
                 'service_name': service.service_name,
                 'thumbnail_image': request.build_absolute_uri(service.thumbnail_image.url) if service.thumbnail_image else None,
-                'intro': service.content,
+                'intro': service.intro,
                 'team_num': service.team,
             }
             data.append(service_data)
