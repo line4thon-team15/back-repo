@@ -9,6 +9,7 @@ from .models import Service, PresentationImage, Member
 from .serializers import ServiceSerializer, ServicePresentationSerializer, ServiceMemberSerializer, ServiceListSerializer
 
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 
 import pandas as pd
 import json
@@ -102,3 +103,31 @@ class TeamDataView(APIView):
                 Member.objects.create(service=service_instance, member=member_name, part=member_part)
 
         return Response(team_data, status=status.HTTP_200_OK)
+    
+class MyServiceViewset(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin):
+    serializer_class = ServiceSerializer
+
+    def get_permissions(self):
+        if self.action in ["update", "delete", "partial_update"]:
+            return [IsOwnerOrReadOnly()]
+        elif self.action == "destroy":
+            return [IsAdminUser()]
+        else:
+            return [AllowAny()]
+
+    def get_queryset(self):
+        # Start with a default queryset
+
+        user = self.request.user
+
+        if user.is_authenticated:
+            # If user is authenticated, filter based on their team
+            return Service.objects.filter(team=user.team)
+        else:
+            return Service.objects.none()
+
+    def list(self, request, *args, **kwargs):
+        # Ensure the queryset is serialized and properly rendered
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
