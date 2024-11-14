@@ -104,7 +104,7 @@ class TeamDataView(APIView):
 
         return Response(team_data, status=status.HTTP_200_OK)
     
-class MyServiceViewset(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin):
+class MyServiceViewset(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin):
     serializer_class = ServiceSerializer
 
     def get_permissions(self):
