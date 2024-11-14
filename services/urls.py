@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework import routers
 
-from .views import ServiceViewSet, MemberViewSet, PresentationViewSet, ServiceListView
+from .views import ServiceViewSet, MemberViewSet, PresentationViewSet, ServiceListView, TeamDataView
 from reviews.views import ReviewsAPIView
 
 app_name = "services"
@@ -22,4 +22,5 @@ urlpatterns = [
     path("", ServiceListView.as_view(), name='service-list'),
     path("4line-services/<int:service_id>/", ReviewsAPIView.as_view()),
     path("4line-services/<int:service_id>/reviews/<int:review_id>/", ReviewsAPIView.as_view()),
+    path("upload-team-data/", TeamDataView.as_view(), name="upload_team_data")
 ] 

@@ -84,16 +84,6 @@ class ServiceSerializer(serializers.ModelSerializer):
         for image_data in image_set.getlist('image'):
             PresentationImage.objects.create(service=instance, image=image_data)
 
-        # Load team members from JSON file
-        members_file_path = 'services/members.json'  # Update with the actual file path
-        with open(members_file_path, 'r', encoding='utf-8') as file:
-            members_data = json.load(file)
-
-        # Retrieve members for the given team and save to DB
-        team_members = members_data.get(str(instance.team), [])
-        for member_name in team_members:
-            Member.objects.create(service=instance, member=member_name)
-
         return instance
 
     def update(self, instance, validated_data):
