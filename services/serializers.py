@@ -128,3 +128,4 @@ class ServiceListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
         fields = ['id', 'service_name', 'team', 'thumbnail_image']
+
