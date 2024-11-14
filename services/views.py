@@ -1,3 +1,5 @@
+import os
+from django.conf import settings
 from django.shortcuts import render
 from rest_framework import viewsets, mixins, generics
 from rest_framework.permissions import AllowAny, IsAdminUser
@@ -78,7 +80,9 @@ class TeamDataView(APIView):
             ]
         
         # JSON 파일로 저장
-        json_file_path = 'services/members.json'  # 실제 저장 경로에 맞게 수정
+        json_file_path = os.path.join(settings.BASE_DIR, 'services', 'members.json')
+        os.makedirs(os.path.dirname(json_file_path), exist_ok=True)
+        # json_file_path = 'services/members.json'  # 실제 저장 경로에 맞게 수정
         with open(json_file_path, 'w', encoding='utf-8') as json_file:
             json.dump(team_data, json_file, ensure_ascii=False, indent=4)
 
