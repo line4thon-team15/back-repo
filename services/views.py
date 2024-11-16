@@ -22,7 +22,7 @@ class ServiceViewSet(viewsets.ModelViewSet):
     serializer_class = ServiceSerializer
     # permission_classes = [AllowAny]
     def get_permissions(self):
-        if self.action in ["update", "delete", "partial_update"]:
+        if self.action in ["update", "partial_update"]:
             return [IsOwnerOrReadOnly()]
         elif self.action == "destroy":
             return [IsAdminUser()]
@@ -131,3 +131,17 @@ class MyServiceViewset(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.Re
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+    
+    # 나중에 수정해야할 수도
+        # queryset = self.get_queryset().first()
+        
+        # # If no service exists, return a 404 response
+        # if queryset is None:
+        #     return Response(
+        #         {"detail": "Service not found for the user's team."},
+        #         status=status.HTTP_404_NOT_FOUND
+        #     )
+        
+        # # Serialize the single service object
+        # serializer = self.get_serializer(queryset)
+        # return Response(serializer.data)
